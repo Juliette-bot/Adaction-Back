@@ -1,4 +1,8 @@
-package com.adaction.backend.modele;
+package com.adaction.backend.model;
+
+// REPRESENTATION DES DONNEES
+// ici Le MODEL est le coeur des données de mon app. Chaque obj de ce dossier represente un entité qui corespond sourvent une table de ma BDD.
+// Ici je defini ma strucuture des données et mon code sert d'ojb de transfert entre les autres couches (controleur, data...)
 
 public class ModelDisplayWaste {
     private int id;
@@ -6,6 +10,7 @@ public class ModelDisplayWaste {
     private String name;
     private int point;
     private String icone;
+    private int quantity_waste;
 
 
     public ModelDisplayWaste(int id, String type, String name, int point, String icone) {
@@ -14,6 +19,7 @@ public class ModelDisplayWaste {
         this.name = name;
         this.point = point;
         this.icone = icone;
+        this.quantity_waste = 0;
     }
 
     // Getters et Setters
@@ -56,4 +62,11 @@ public class ModelDisplayWaste {
     public void setIcone(String icone) {
         this.icone = icone;
     }
+
+    public int getQuantity_waste() { return quantity_waste; }
+
+    public void setQuantity_waste(int quantity_waste) {
+        this.quantity_waste = quantity_waste;
+    }
+
 }

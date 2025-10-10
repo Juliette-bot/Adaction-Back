@@ -1,4 +1,4 @@
-package com.adaction.backend.modele;
+package com.adaction.backend.model;
 
 public class ModelDisplayDonation {
     String associationName;
