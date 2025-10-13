@@ -2,6 +2,8 @@ package com.adaction.backend.data;
 
 import com.adaction.backend.model.ModelAddCollect;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 public class DataAddCollect {
@@ -9,6 +11,29 @@ public class DataAddCollect {
     private static final String URL = "jdbc:mysql://localhost:3306/BDDAdaction";
     private static final String USER = "root";
     private static final String PASSWORD = "Juliette17!";
+
+
+    // 🔹 1️⃣ — Récupération des villes (pour ton /city)
+    public List<String> getAllCities() {
+        List<String> cities = new ArrayList<>();
+        String sql = "SELECT city FROM city";
+
+        try (Connection con = DriverManager.getConnection(URL, USER, PASSWORD);
+             PreparedStatement stmt = con.prepareStatement(sql);
+             ResultSet rs = stmt.executeQuery()) {
+
+            while (rs.next()) {
+                cities.add(rs.getString("city"));
+            }
+
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur lors de la récupération des villes : " + e.getMessage());
+            e.printStackTrace();
+        }
+
+        return cities;
+    }
+
 
     public void saveCollect(ModelAddCollect collect) {
         String sqlFindCityId = "SELECT id FROM city WHERE city = ?";

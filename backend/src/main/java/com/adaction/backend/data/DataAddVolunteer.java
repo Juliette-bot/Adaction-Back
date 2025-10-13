@@ -1,6 +1,6 @@
 package com.adaction.backend.data;
 
-import com.adaction.backend.modele.ModelChangeVolunteerVueAdmin;
+import com.adaction.backend.model.ModelChangeVolunteerVueAdmin;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;

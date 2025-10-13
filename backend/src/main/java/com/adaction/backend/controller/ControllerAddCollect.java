@@ -6,20 +6,25 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
 public class ControllerAddCollect {
 
-    private final DataAddCollect repository = new DataAddCollect();
+    private  DataAddCollect repository = new DataAddCollect();
+
+
+    @GetMapping("/city")
+    public List<String> getCities() {
+        return repository.getAllCities();
+    }
 
     @PostMapping("/collect")
     public ResponseEntity<String> addCollect(@RequestBody ModelAddCollect collect) {
         try {
             Map<Integer, Integer> convertedMap = new HashMap<>();
-                       for (Map.Entry<?, ?> entry : collect.getWasteTypeAndQuantity().entrySet()) {
+            for (Map.Entry<?, ?> entry : collect.getWasteTypeAndQuantity().entrySet()) {
                 convertedMap.put(Integer.parseInt(entry.getKey().toString()), (Integer) entry.getValue());
             }
             collect.setWasteTypeAndQuantity(convertedMap);
@@ -31,5 +36,4 @@ public class ControllerAddCollect {
             return ResponseEntity.status(500).body("Erreur : " + e.getMessage());
         }
     }
-
 }

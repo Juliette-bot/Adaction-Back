@@ -26,7 +26,7 @@ public class ModelAddCollect {
 
     }
 
-    public ModelAddCollect(String created_at, int city_id, String wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {
+    public ModelAddCollect(String created_at, String city_id, String wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {
 
     }
 
