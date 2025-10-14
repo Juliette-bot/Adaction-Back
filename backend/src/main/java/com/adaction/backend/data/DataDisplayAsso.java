@@ -10,7 +10,7 @@ public class DataDisplayAsso {
 
     private static final String URL = "jdbc:mysql://localhost:3306/BDDAdaction";
     private static final String USER = "root";
-    private static final String PASSWORD = "Juliette17!";
+    private static final String PASSWORD = "Root1234!";
 
     public List<ModelDisplayAsso> findAll() {
         List<ModelDisplayAsso> assos = new ArrayList<>();
