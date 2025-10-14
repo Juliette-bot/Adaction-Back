@@ -1,6 +1,6 @@
 package com.adaction.backend.controller;
 
-import com.adaction.backend.model.ModelChangeVolunteerVueAdmin;
+import com.adaction.backend.modele.ModelChangeVolunteerVueAdmin;
 import com.adaction.backend.data.DataAddVolunteer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
