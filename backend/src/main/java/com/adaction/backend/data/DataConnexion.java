@@ -1,6 +1,6 @@
 package com.adaction.backend.data;
 
-import com.adaction.backend.modele.ModelConnexion;
+import com.adaction.backend.model.ModelConnexion;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Repository;
 
