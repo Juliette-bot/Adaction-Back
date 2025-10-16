@@ -29,8 +29,8 @@ public class DataVolunteer {
     }
 
     //Insert a new Volunteer
-    public void insertVolunteer(ModelVolunteer volunteer) {
-        String insertCitySql = """
+    public String insertVolunteer(ModelVolunteer volunteer) {
+        ;String insertCitySql = """
                     INSERT INTO city (city)
                     SELECT ?
                     WHERE NOT EXISTS (
@@ -62,42 +62,12 @@ public class DataVolunteer {
                 stmtVol.executeUpdate();
             }
 
-            System.out.println("✅ Ville vérifiée et bénévole ajouté avec succès !");
+            System.out.println("Bénévole ajouté avec succès !");
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return null;
     }
-
-    //Gather volunteer information
-//    public List<Map<String, Object>> getVolunteer() {
-//        List<Map<String, Object>> listVolunteer = new ArrayList<>();
-//
-//        String sql = "SELECT id, firstName, lastName, city_id FROM volunteer";
-//
-//        try (Connection conn = DriverManager.getConnection(
-//                props.getUrl(), props.getUsername(), props.getPassword());
-//             Statement stmt = conn.createStatement();
-//             ResultSet rs = stmt.executeQuery(sql)) {
-//
-//            while (rs.next()) {
-//                int cityId = rs.getInt("city_id");
-//                String cityName = DataCity.getCityNameById(cityId);
-//
-//                Map<String, Object> volunteerMap = new HashMap();
-//                volunteerMap.put("id", rs.getInt("id"));
-//                volunteerMap.put("firstName", rs.getString("firstName"));
-//                volunteerMap.put("lastName", rs.getString("lastName"));
-//                volunteerMap.put("cityName", cityName);
-//
-//                listVolunteer.add(volunteerMap);
-//            }
-//
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-//
-//        return listVolunteer;
-//    }
 
     public List<Map<String, Object>> getVolunteerWithCity() {
         List<Map<String, Object>> listVolunteer = new ArrayList<>();
@@ -111,7 +81,7 @@ public class DataVolunteer {
 
             while (rs.next()) {
                 int cityId = rs.getInt("city_id");
-                String cityName = DataCity.getCityNameById(cityId); // récupère la ville via repo
+                String cityName = DataCity.getCityNameById(cityId);
 
                 Map<String, Object> volunteerMap = new HashMap<>();
                 volunteerMap.put("id", rs.getInt("id"));
@@ -129,37 +99,38 @@ public class DataVolunteer {
         return listVolunteer;
     }
 
-    //Modify a volunteer information
-    public List<ModelVolunteer> getInfosVolunteer() {
-        List<ModelVolunteer> listInfosVolunteer = new ArrayList<>();
+    //Get the volunteer information for the modification form with the id
+    public Map<String, Object> getInfosVolunteer(int id) {
+        Map<String, Object> volunteerInfosMap = new HashMap<>();
 
         String modifyVolunteerSql = """
-        SELECT v.id, v.firstName, v.lastName, v.email, c.city AS cityName
-        FROM volunteer v
-        JOIN city c ON v.city_id = c.id
-        """;
+                SELECT id, firstName, lastName, pass_word, email, city_id FROM volunteer WHERE id = ?
+                """;
 
         try (Connection conn = DriverManager.getConnection(
-                props.getUrl(), props.getUsername(), props.getPassword())) {
-            Statement smt = conn.createStatement();
-            ResultSet rs = smt.executeQuery(modifyVolunteerSql);
-            while (rs.next()) {
-                ModelVolunteer volunteer = new ModelVolunteer(
-                        rs.getInt("id"),
-                        rs.getString("firstName"),
-                        rs.getString("lastName"),
-                        rs.getString("pass_word"),
-                        rs.getString("email"),
-                        rs.getInt("city_id")
-                );
-                listInfosVolunteer.add(volunteer);
+                props.getUrl(), props.getUsername(), props.getPassword());
+             PreparedStatement ps = conn.prepareStatement(modifyVolunteerSql)) {
+
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int cityId = rs.getInt("city_id");
+                String cityName = DataCity.getCityNameById(cityId);
+
+                volunteerInfosMap.put("id", rs.getInt("id"));
+                volunteerInfosMap.put("firstName", rs.getString("firstName"));
+                volunteerInfosMap.put("lastName", rs.getString("lastName"));
+                volunteerInfosMap.put("pass_word", "");
+                volunteerInfosMap.put("email", rs.getString("email"));
+                volunteerInfosMap.put("city_id", cityName);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return listInfosVolunteer;
+        return volunteerInfosMap;
     }
 
     //Get the firstname of a volunteer with the id
@@ -176,7 +147,7 @@ public class DataVolunteer {
                 String userFirstname = rs.getString("firstName");
                 return userFirstname;
             }
-        } catch(SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
@@ -211,4 +182,80 @@ public class DataVolunteer {
         }
     }
 
+}
+    //Modify the information of a volunteer (admin page)
+    public void modifyVolunteerInfo(ModelVolunteer volunteer,String cityName) {
+
+        String insertCitySql = """
+                    INSERT INTO city (city)
+                    SELECT ?
+                    WHERE NOT EXISTS (SELECT 1 FROM city WHERE city = ?)
+                """;
+
+        String updateVolunteerSql = """
+                    UPDATE volunteer
+                    SET firstName = ?, lastName = ?, email = ?, pass_word = ?, city_id = (SELECT id FROM city WHERE city = ?)
+                    WHERE id = ?
+                """;
+
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword())) {
+
+            conn.setAutoCommit(false);
+
+            // 1️⃣ Insérer la ville si elle n'existe pas
+            try (PreparedStatement stmtCity = conn.prepareStatement(insertCitySql)) {
+                stmtCity.setString(1, cityName);
+                stmtCity.setString(2, cityName);
+                stmtCity.executeUpdate();
+            }
+
+            // 2️⃣ Mettre à jour le bénévole
+            try (PreparedStatement stmtVol = conn.prepareStatement(updateVolunteerSql)) {
+                stmtVol.setString(1, volunteer.getFirstName());
+                stmtVol.setString(2, volunteer.getLastName());
+                stmtVol.setString(3, volunteer.getEmail());
+                stmtVol.setString(4, volunteer.getPass_word());
+                stmtVol.setString(5, cityName);
+                stmtVol.setInt(6, volunteer.getId());
+                stmtVol.executeUpdate();
+            }
+
+            conn.commit(); // ✅ tout s’est bien passé
+            System.out.println("✅ Bénévole modifié avec succès !");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // rollback si erreur
+            try (Connection conn = DriverManager.getConnection(
+                    props.getUrl(), props.getUsername(), props.getPassword())) {
+                conn.rollback();
+            } catch (SQLException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    //Delete a volunteer
+    public String deleteVolunteer (ModelVolunteer volunteerToDelete) {
+        String sql = "DELETE FROM volunteer WHERE id = ?";
+
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword());
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setInt(1, volunteerToDelete.getId());
+
+            int rowsAffected = stmt.executeUpdate();
+
+            if (rowsAffected > 0) {
+                return "Volunteer deleted successfully!";
+            } else {
+                return "No volunteer found with ID " + volunteerToDelete.getId();
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return "Error while deleting volunteer.";
+        }
+    }
 }

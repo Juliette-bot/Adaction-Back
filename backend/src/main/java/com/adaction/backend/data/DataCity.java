@@ -34,4 +34,23 @@ public class DataCity {
         }
         return null;
     }
+
+    public int getCityIdByCityName(String city){
+        String sql = "SELECT id FROM city WHERE city = ?";
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword());
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            stmt.setString(1, city);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("id");
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
