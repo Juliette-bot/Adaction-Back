@@ -1,24 +1,18 @@
 package com.adaction.backend.data;
 
-import com.adaction.backend.model.ModelWaste;
+import com.adaction.backend.model.ModelAssociation;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-// GESTION DE LA BDD
-// je parle directement a le BDD SQL
-// roles : je me connect a la BDD, execute les requetes(select, insert, update, delete),
-// transforme les resultats SQL en obj via mon modele (ex la via modeldisplaywaste), puis renvoir cette ojt au controleur.
-// Ici je me connecte/communique avec ma BDD en faisant des requetes SQL
 @Repository
-public class DataWaste {
-
+public class DataAssociation {
 
     private final DatabaseProperties props;
 
-    public DataWaste(DatabaseProperties props) {
+    public DataAssociation(DatabaseProperties props) {
         this.props = props;
     }
 
@@ -30,29 +24,29 @@ public class DataWaste {
         );
     }
 
-    public List<ModelWaste> findAll() {
-        List<ModelWaste> wastes = new ArrayList<>();
-        String sql = "SELECT * FROM waste";
+    public List<ModelAssociation> findAll() {
+        List<ModelAssociation> assos = new ArrayList<>();
+        String sql = "SELECT * FROM association";
 
         try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
             while (rs.next()) {
-                ModelWaste waste = new ModelWaste(
+                ModelAssociation asso = new ModelAssociation(
                         rs.getInt("id"),
-                        rs.getString("type"),
                         rs.getString("name"),
+                        rs.getString("description"),
                         rs.getInt("point"),
-                        rs.getString("icone")
+                        rs.getString("image")
                 );
-                wastes.add(waste);
+                assos.add(asso);
             }
 
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return wastes;
+        return assos;
     }
 }

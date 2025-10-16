@@ -12,12 +12,20 @@ import java.util.Map;
 @Repository
 public class DataVolunteer {
 
-    private final DatabaseProperties props;
+    private  final DatabaseProperties props;
     private final DataCity DataCity;
 
     public DataVolunteer(DatabaseProperties props, DataCity DataCity) {
         this.props = props;
         this.DataCity = DataCity;
+    }
+
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(
+                props.getUrl(),
+                props.getUsername(),
+                props.getPassword()
+        );
     }
 
     //Insert a new Volunteer
@@ -172,6 +180,35 @@ public class DataVolunteer {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    public boolean updateVolunteer(int id, ModelVolunteer volunteer) {
+        String sql = """
+            UPDATE volunteer
+            SET firstName = ?, lastName = ?, email = ?, pass_word = ?, city_id = ?, points = ?
+            WHERE id = ?
+        """;
+
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword());
+             PreparedStatement statement = conn.prepareStatement(sql)) {
+
+            statement.setString(1, volunteer.getFirstName());
+            statement.setString(2, volunteer.getLastName());
+            statement.setString(3, volunteer.getEmail());
+            statement.setString(4, volunteer.getPass_word());
+            statement.setInt(5, volunteer.getCity_id());
+            statement.setInt(6, volunteer.getPoints());
+            statement.setInt(7, id);
+
+            int rowsUpdated = statement.executeUpdate();
+            return rowsUpdated > 0;
+
+        } catch (SQLException e) {
+            System.err.println("❌ Erreur SQL lors de la mise à jour du bénévole : " + e.getMessage());
+            return false;
+        }
     }
 
 }

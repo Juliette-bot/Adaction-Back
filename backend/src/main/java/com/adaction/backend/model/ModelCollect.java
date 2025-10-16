@@ -3,7 +3,7 @@ package com.adaction.backend.model;
 import java.util.Map;
 
 
-public class ModelAddCollect {
+public class ModelCollect {
     private int id;
     private String created_at;
     private String city_id;
@@ -12,9 +12,9 @@ public class ModelAddCollect {
     private int quantity_waste;
     private int waste_id;
 
-    public ModelAddCollect() {}
+    public ModelCollect() {}
 
-    public ModelAddCollect (int id, String created_at, String city_id, Map<Integer,Integer> wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {
+    public ModelCollect(int id, String created_at, String city_id, Map<Integer,Integer> wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {
         this.id = id;
         this.created_at = created_at;
         this.city_id= city_id;
@@ -26,7 +26,7 @@ public class ModelAddCollect {
 
     }
 
-    public ModelAddCollect(String created_at, String city_id, String wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {
+    public ModelCollect(String created_at, String city_id, String wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {
 
     }
 

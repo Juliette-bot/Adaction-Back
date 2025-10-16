@@ -1,19 +1,21 @@
 package com.adaction.backend.controller;
 
-import com.adaction.backend.data.DataAddCollect;
-import com.adaction.backend.model.ModelAddCollect;
+import com.adaction.backend.data.DataCollect;
+import com.adaction.backend.model.ModelCollect;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.*;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:5173")
-public class ControllerAddCollect {
+public class ControllerCollect {
 
-    private  DataAddCollect repository = new DataAddCollect();
+    private final DataCollect repository;
 
+    public ControllerCollect(DataCollect repository) {
+        this.repository = repository;
+    }
 
     @GetMapping("/city")
     public List<String> getCities() {
@@ -21,7 +23,7 @@ public class ControllerAddCollect {
     }
 
     @PostMapping("/collect")
-    public ResponseEntity<String> addCollect(@RequestBody ModelAddCollect collect) {
+    public ResponseEntity<String> addCollect(@RequestBody ModelCollect collect) {
         try {
             Map<Integer, Integer> convertedMap = new HashMap<>();
             for (Map.Entry<?, ?> entry : collect.getWasteTypeAndQuantity().entrySet()) {

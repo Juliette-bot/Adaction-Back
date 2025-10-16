@@ -1,24 +1,36 @@
 package com.adaction.backend.data;
 
-import com.adaction.backend.model.ModelAddCollect;
+import com.adaction.backend.model.ModelCollect;
+import org.springframework.stereotype.Repository;
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class DataAddCollect {
+@Repository
+public class DataCollect {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/BDDAdaction";
-    private static final String USER = "root";
-    private static final String PASSWORD = "Root1234!";
+    private final DatabaseProperties props;
 
+    public DataCollect(DatabaseProperties props) {
+        this.props = props;
+    }
 
-    // 🔹 1️⃣ — Récupération des villes (pour ton /city)
+    private Connection getConnection() throws SQLException {
+        return DriverManager.getConnection(
+                props.getUrl(),
+                props.getUsername(),
+                props.getPassword()
+        );
+    }
+
+    // 🔹 1️⃣ — Récupération des villes
     public List<String> getAllCities() {
         List<String> cities = new ArrayList<>();
         String sql = "SELECT city FROM city";
 
-        try (Connection con = DriverManager.getConnection(URL, USER, PASSWORD);
+        try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
 
@@ -28,36 +40,32 @@ public class DataAddCollect {
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur lors de la récupération des villes : " + e.getMessage());
-            e.printStackTrace();
         }
 
         return cities;
     }
 
-
-    public void saveCollect(ModelAddCollect collect) {
+    // 🔹 2️⃣ — Enregistrement d'une collecte
+    public void saveCollect(ModelCollect collect) {
         String sqlFindCityId = "SELECT id FROM city WHERE city = ?";
         String sqlCollect = "INSERT INTO collect (created_at, city_id) VALUES (?, ?)";
         String sqlWasteCollect = "INSERT INTO waste_collect (collect_id, waste_id, quantity_waste) VALUES (?, ?, ?)";
 
-        try (Connection con = DriverManager.getConnection(URL, USER, PASSWORD)) {
-            con.setAutoCommit(false); // début de transaction
+        try (Connection con = getConnection()) {
+            con.setAutoCommit(false);
 
-            // 🔍 Étape 1 : Trouver l'ID de la ville à partir de son nom
             int cityId;
             try (PreparedStatement stmtCity = con.prepareStatement(sqlFindCityId)) {
-                stmtCity.setString(1, collect.getCity_id()); // on cherche la ville par son nom
+                stmtCity.setString(1, collect.getCity_id());
                 try (ResultSet rs = stmtCity.executeQuery()) {
                     if (rs.next()) {
                         cityId = rs.getInt("id");
-                        System.out.println("🏙️ Ville trouvée : " + collect.getCity_id() + " (ID: " + cityId + ")");
                     } else {
                         throw new SQLException("Ville non trouvée : " + collect.getCity_id());
                     }
                 }
             }
 
-            // 📝 Étape 2 : Insertion dans la table collect
             int collectId;
             try (PreparedStatement stmt = con.prepareStatement(sqlCollect, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, collect.getCreated_at());
@@ -73,22 +81,16 @@ public class DataAddCollect {
                 }
             }
 
-            // ♻️ Étape 3 : Insertion dans waste_collect pour chaque type de déchet
             try (PreparedStatement stmtWaste = con.prepareStatement(sqlWasteCollect)) {
                 for (Map.Entry<Integer, Integer> entry : collect.getWasteTypeAndQuantity().entrySet()) {
-                    int wasteId = entry.getKey();
-                    int quantity = entry.getValue();
-
                     stmtWaste.setInt(1, collectId);
-                    stmtWaste.setInt(2, wasteId);
-                    stmtWaste.setInt(3, quantity);
+                    stmtWaste.setInt(2, entry.getKey());
+                    stmtWaste.setInt(3, entry.getValue());
                     stmtWaste.addBatch();
                 }
-
                 stmtWaste.executeBatch();
             }
 
-            // ✅ Étape 4 : Commit
             con.commit();
             System.out.println("✅ Collecte enregistrée avec succès (ID: " + collectId + ")");
 

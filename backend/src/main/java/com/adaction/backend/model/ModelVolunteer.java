@@ -8,6 +8,7 @@ public class ModelVolunteer {
     private String pass_word = null;
     private int city_id;
     private int points = 0;
+    
 
     public ModelVolunteer(int id,String firstName, String lastName){
         this.id = id;

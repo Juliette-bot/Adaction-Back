@@ -1,16 +1,7 @@
 package com.adaction.backend.model;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RestController;
 
-import javax.swing.*;
-import java.sql.*;
-import java.util.ArrayList;
-import java.util.Base64;
-import java.util.List;
-
-
-public class ModelDisplayAsso {
+public class ModelAssociation {
     private int id;
     private String name;
     private String description;
@@ -18,7 +9,7 @@ public class ModelDisplayAsso {
     private String image;
 
 
-    public ModelDisplayAsso(int id, String name, String description, int point, String image) {
+    public ModelAssociation(int id, String name, String description, int point, String image) {
         this.id = id;
         this.name = name;
         this.description = description;
