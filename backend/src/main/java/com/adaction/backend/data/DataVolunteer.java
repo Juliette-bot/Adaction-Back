@@ -3,6 +3,7 @@ package com.adaction.backend.data;
 import com.adaction.backend.model.ModelVolunteer;
 import org.springframework.stereotype.Repository;
 
+
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -22,6 +23,9 @@ public class DataVolunteer {
 
     //Insert a new Volunteer
     public String insertVolunteer(ModelVolunteer volunteer) {
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword())) {
+
         ;String insertCitySql = """
                     INSERT INTO city (city)
                     SELECT ?
@@ -30,26 +34,23 @@ public class DataVolunteer {
                     )
                 """;
 
+        try (PreparedStatement stmtCity = conn.prepareStatement(insertCitySql)) {
+            stmtCity.setString(1, volunteer.getCityName());
+            stmtCity.setString(2, volunteer.getCityName());
+            stmtCity.executeUpdate();
+        }
+
         String insertVolunteerSql = """
                     INSERT INTO volunteer (firstName, lastName, email, pass_word, city_id, points)
                     VALUES (?, ?, ?, ?, (SELECT id FROM city WHERE city = ?), ?)
                 """;
-
-        try (Connection conn = DriverManager.getConnection(
-                props.getUrl(), props.getUsername(), props.getPassword())) {
-
-            try (PreparedStatement stmtCity = conn.prepareStatement(insertCitySql)) {
-                stmtCity.setInt(1, volunteer.getCity_id());
-                stmtCity.setInt(2, volunteer.getCity_id());
-                stmtCity.executeUpdate();
-            }
 
             try (PreparedStatement stmtVol = conn.prepareStatement(insertVolunteerSql)) {
                 stmtVol.setString(1, volunteer.getFirstName());
                 stmtVol.setString(2, volunteer.getLastName());
                 stmtVol.setString(3, volunteer.getEmail());
                 stmtVol.setString(4, volunteer.getPass_word());
-                stmtVol.setInt(5, volunteer.getCity_id());
+                stmtVol.setString(5, volunteer.getCityName());
                 stmtVol.setInt(6, 0);
                 stmtVol.executeUpdate();
             }
@@ -197,6 +198,21 @@ public class DataVolunteer {
         }
     }
 
+    public String getExistingPassword(int id) {
+        try (Connection conn = DriverManager.getConnection(props.getUrl(), props.getUsername(), props.getPassword())) {
+            String query = "SELECT pass_word FROM volunteer WHERE id = ?";
+            PreparedStatement stmt = conn.prepareStatement(query);
+            stmt.setInt(1, id);
+            ResultSet rs = stmt.executeQuery();
+
+            if (rs.next()) {
+                return rs.getString("pass_word");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
     //Delete a volunteer
     public String deleteVolunteer (ModelVolunteer volunteerToDelete) {
         String sql = "DELETE FROM volunteer WHERE id = ?";

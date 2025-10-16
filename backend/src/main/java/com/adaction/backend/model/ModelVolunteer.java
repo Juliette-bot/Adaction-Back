@@ -7,7 +7,7 @@ public class ModelVolunteer {
     private String email = null;
     private String pass_word = null;
     private int city_id;
-    //private String cityName;
+    private String cityName;
     private int points = 0;
 
     public ModelVolunteer(int id,String firstName, String lastName){
@@ -23,7 +23,7 @@ public class ModelVolunteer {
         this.email = email;
         this.pass_word = pass_word;
         this.city_id = city_id;
-        //this.cityName = cityName;
+        this.cityName = cityName;
     }
 
     public ModelVolunteer(String firstName, String lastName, String email, String pass_word, int city_id, int points){
@@ -96,13 +96,13 @@ public class ModelVolunteer {
         this.city_id = city_id;
     }
 
-//    public String getCityName() {
-//        return cityName;
-//    }
+    public String getCityName() {
+        return cityName;
+    }
 
-//    public void setCityName(String cityName) {
-//        this.cityName = cityName;
-//    }
+    public void setCityName(String cityName) {
+        this.cityName = cityName;
+    }
 
     public int getPoints() {
         return points;
