@@ -7,6 +7,7 @@ public class ModelVolunteer {
     private String email = null;
     private String pass_word = null;
     private int city_id;
+    //private String cityName;
     private int points = 0;
 
     public ModelVolunteer(int id,String firstName, String lastName){
@@ -15,13 +16,23 @@ public class ModelVolunteer {
         this.lastName = lastName;
     }
 
-    public ModelVolunteer(int id, String firstName, String lastName, String email, String pass_word, int city_id){
+    public ModelVolunteer(int id, String firstName, String lastName, String email, String pass_word, int city_id, String cityName){
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
         this.pass_word = pass_word;
         this.city_id = city_id;
+        //this.cityName = cityName;
+    }
+
+    public ModelVolunteer(String firstName, String lastName, String email, String pass_word, int city_id, int points){
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.pass_word = pass_word;
+        this.city_id = city_id;
+        this.points = points;
     }
 
     public ModelVolunteer(int id, String firstName, String lastName, String email, String pass_word, int city_id, int points){
@@ -33,6 +44,7 @@ public class ModelVolunteer {
         this.city_id = city_id;
         this.points = points;
     }
+
 
     public ModelVolunteer() {}
 
@@ -49,7 +61,7 @@ public class ModelVolunteer {
         return firstName;
     }
 
-    public void setFirstname(String firstName) {
+    public void setFirstName(String firstName) {
         this.firstName = firstName;
     }
 
@@ -83,6 +95,14 @@ public class ModelVolunteer {
     public void setCity_id(int city_id) {
         this.city_id = city_id;
     }
+
+//    public String getCityName() {
+//        return cityName;
+//    }
+
+//    public void setCityName(String cityName) {
+//        this.cityName = cityName;
+//    }
 
     public int getPoints() {
         return points;

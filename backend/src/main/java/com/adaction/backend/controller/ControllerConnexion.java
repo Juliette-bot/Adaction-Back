@@ -17,8 +17,8 @@ public class ControllerConnexion {
     @PostMapping("/connexion")
     public ResponseEntity<String> login(@RequestBody ModelConnexion login) {
 
-        int id = dataConnexion.verifyLogin(login);
-        if (id != -1) {
+        Integer id = dataConnexion.verifyLogin(login);
+        if (id != null && id != -1) {
             System.out.println("Connexion réussie !");
             return ResponseEntity.ok("{\"message\": \"Connexion réussie\", \"id\": " + id + "}");
         } else {
