@@ -10,7 +10,7 @@ public class DataAddCollect {
 
     private static final String URL = "jdbc:mysql://localhost:3306/BDDAdaction";
     private static final String USER = "root";
-    private static final String PASSWORD = "Root1234!";
+    private static final String PASSWORD = "Juliette17!";
 
 
     // 🔹 1️⃣ — Récupération des villes (pour ton /city)
