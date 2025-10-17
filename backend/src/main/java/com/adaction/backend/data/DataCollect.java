@@ -40,6 +40,7 @@ public class DataCollect {
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur lors de la récupération des villes : " + e.getMessage());
+            e.printStackTrace();
         }
 
         return cities;

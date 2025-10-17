@@ -1,11 +1,11 @@
 package com.adaction.backend.model;
 
-public class ModelDisplayDonation {
+public class ModelDonation {
     String associationName;
     Integer amount;
     Integer date;
 
-    public ModelDisplayDonation(String associationName,Integer amount,Integer date){
+    public ModelDonation(String associationName, Integer amount, Integer date){
         this.associationName = associationName;
         this.amount = amount;
         this.date = date;

@@ -9,12 +9,18 @@ public class ModelVolunteer {
     private int city_id;
     private String cityName;
     private int points = 0;
-    
+
 
     public ModelVolunteer(int id,String firstName, String lastName){
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
+    }
+    public ModelVolunteer(int id,String firstName, String lastName, String cityName){
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.cityName =  cityName;
     }
 
     public ModelVolunteer(int id, String firstName, String lastName, String email, String pass_word, int city_id, String cityName){

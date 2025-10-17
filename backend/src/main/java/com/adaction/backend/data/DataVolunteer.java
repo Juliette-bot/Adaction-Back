@@ -3,7 +3,6 @@ package com.adaction.backend.data;
 import com.adaction.backend.model.ModelVolunteer;
 import org.springframework.stereotype.Repository;
 
-
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -13,7 +12,7 @@ import java.util.Map;
 @Repository
 public class DataVolunteer {
 
-    private  final DatabaseProperties props;
+    private final DatabaseProperties props;
     private final DataCity DataCity;
 
     public DataVolunteer(DatabaseProperties props, DataCity DataCity) {
@@ -34,24 +33,25 @@ public class DataVolunteer {
         try (Connection conn = DriverManager.getConnection(
                 props.getUrl(), props.getUsername(), props.getPassword())) {
 
-        ;String insertCitySql = """
-                    INSERT INTO city (city)
-                    SELECT ?
-                    WHERE NOT EXISTS (
-                        SELECT 1 FROM city WHERE city = ?
-                    )
-                """;
+            ;
+            String insertCitySql = """
+                        INSERT INTO city (city)
+                        SELECT ?
+                        WHERE NOT EXISTS (
+                            SELECT 1 FROM city WHERE city = ?
+                        )
+                    """;
 
-        try (PreparedStatement stmtCity = conn.prepareStatement(insertCitySql)) {
-            stmtCity.setString(1, volunteer.getCityName());
-            stmtCity.setString(2, volunteer.getCityName());
-            stmtCity.executeUpdate();
-        }
+            try (PreparedStatement stmtCity = conn.prepareStatement(insertCitySql)) {
+                stmtCity.setString(1, volunteer.getCityName());
+                stmtCity.setString(2, volunteer.getCityName());
+                stmtCity.executeUpdate();
+            }
 
-        String insertVolunteerSql = """
-                    INSERT INTO volunteer (firstName, lastName, email, pass_word, city_id, points)
-                    VALUES (?, ?, ?, ?, (SELECT id FROM city WHERE city = ?), ?)
-                """;
+            String insertVolunteerSql = """
+                        INSERT INTO volunteer (firstName, lastName, email, pass_word, city_id, points)
+                        VALUES (?, ?, ?, ?, (SELECT id FROM city WHERE city = ?), ?)
+                    """;
 
             try (PreparedStatement stmtVol = conn.prepareStatement(insertVolunteerSql)) {
                 stmtVol.setString(1, volunteer.getFirstName());
@@ -154,28 +154,48 @@ public class DataVolunteer {
         return null;
     }
 
-
     public boolean updateVolunteer(int id, ModelVolunteer volunteer) {
-        String sql = """
-            UPDATE volunteer
-            SET firstName = ?, lastName = ?, email = ?, pass_word = ?, city_id = ?, points = ?
-            WHERE id = ?
-        """;
+        String selectSql = "SELECT email, pass_word FROM volunteer WHERE id = ?";
+        String updateSql = """
+        UPDATE volunteer
+        SET firstName = ?, lastName = ?, email = ?, pass_word = ?, city_id = ?, points = ?
+        WHERE id = ?
+    """;
 
         try (Connection conn = DriverManager.getConnection(
-                props.getUrl(), props.getUsername(), props.getPassword());
-             PreparedStatement statement = conn.prepareStatement(sql)) {
+                props.getUrl(), props.getUsername(), props.getPassword())) {
 
-            statement.setString(1, volunteer.getFirstName());
-            statement.setString(2, volunteer.getLastName());
-            statement.setString(3, volunteer.getEmail());
-            statement.setString(4, volunteer.getPass_word());
-            statement.setInt(5, volunteer.getCity_id());
-            statement.setInt(6, volunteer.getPoints());
-            statement.setInt(7, id);
+            // 🕵️‍♀️ 1. Récupérer les infos actuelles
+            String currentEmail = null;
+            String currentPassword = null;
+            try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
+                selectStmt.setInt(1, id);
+                ResultSet rs = selectStmt.executeQuery();
+                if (rs.next()) {
+                    currentEmail = rs.getString("email");
+                    currentPassword = rs.getString("pass_word");
+                }
+            }
 
-            int rowsUpdated = statement.executeUpdate();
-            return rowsUpdated > 0;
+            // 🧩 2. Si les champs du front sont vides, garder ceux de la BDD
+            String emailToUpdate = (volunteer.getEmail() != null && !volunteer.getEmail().isEmpty())
+                    ? volunteer.getEmail() : currentEmail;
+            String passwordToUpdate = (volunteer.getPass_word() != null && !volunteer.getPass_word().isEmpty())
+                    ? volunteer.getPass_word() : currentPassword;
+
+            // 💾 3. Update
+            try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
+                updateStmt.setString(1, volunteer.getFirstName());
+                updateStmt.setString(2, volunteer.getLastName());
+                updateStmt.setString(3, emailToUpdate);
+                updateStmt.setString(4, passwordToUpdate);
+                updateStmt.setInt(5, volunteer.getCity_id());
+                updateStmt.setInt(6, volunteer.getPoints());
+                updateStmt.setInt(7, id);
+
+                int rowsUpdated = updateStmt.executeUpdate();
+                return rowsUpdated > 0;
+            }
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur SQL lors de la mise à jour du bénévole : " + e.getMessage());
@@ -183,21 +203,21 @@ public class DataVolunteer {
         }
     }
 
-}
+
     //Modify the information of a volunteer (admin page)
     public void modifyVolunteerInfo(ModelVolunteer volunteer,String cityName) {
 
         String insertCitySql = """
-                    INSERT INTO city (city)
-                    SELECT ?
-                    WHERE NOT EXISTS (SELECT 1 FROM city WHERE city = ?)
-                """;
+                INSERT INTO city (city)
+                SELECT ?
+                WHERE NOT EXISTS (SELECT 1 FROM city WHERE city = ?)
+            """;
 
         String updateVolunteerSql = """
-                    UPDATE volunteer
-                    SET firstName = ?, lastName = ?, email = ?, pass_word = ?, city_id = (SELECT id FROM city WHERE city = ?)
-                    WHERE id = ?
-                """;
+                UPDATE volunteer
+                SET firstName = ?, lastName = ?, email = ?, pass_word = ?, city_id = (SELECT id FROM city WHERE city = ?)
+                WHERE id = ?
+            """;
 
         try (Connection conn = DriverManager.getConnection(
                 props.getUrl(), props.getUsername(), props.getPassword())) {
@@ -274,4 +294,7 @@ public class DataVolunteer {
             return "Error while deleting volunteer.";
         }
     }
+
+
+
 }

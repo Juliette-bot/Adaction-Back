@@ -1,6 +1,6 @@
 package com.adaction.backend.controller;
 
-import com.adaction.backend.configuration.SecurityConfig;
+import com.adaction.backend.data.DataCity;
 import com.adaction.backend.data.DataVolunteer;
 import com.adaction.backend.data.DatabaseProperties;
 import com.adaction.backend.model.ModelVolunteer;
@@ -10,16 +10,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import org.springframework.http.ResponseEntity;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
-
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/volunteer")
 public class ControllerVolunteer {
 
@@ -138,6 +138,40 @@ public class ControllerVolunteer {
         }
         return response;
     }
+    @PutMapping("/update/{id}")
+    public ResponseEntity<Map<String, String>> updateVolunteer(
+            @PathVariable int id,
+            @RequestBody Map<String, Object> payload) {
+
+        Map<String, String> response = new HashMap<>();
+
+        try {
+            // Création d'un objet ModelVolunteer à partir du JSON reçu
+            ModelVolunteer volunteer = new ModelVolunteer();
+            volunteer.setId(id); // on prend l'id depuis l'URL
+            volunteer.setFirstName((String) payload.get("firstName"));
+            volunteer.setLastName((String) payload.get("lastName"));
+            volunteer.setCity_id(0); // valeur par défaut ou à adapter
+
+            // Récupération du nom de la ville envoyé par le front
+            String cityName = (String) payload.get("cityName");
+
+            // Appel de ta méthode métier
+            volunteerData.modifyVolunteerInfo(volunteer, cityName);
+
+            // Réponse OK
+            response.put("status", "success");
+            response.put("message", "Volunteer modified successfully!");
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            response.put("status", "error");
+            response.put("message", "Error while modifying volunteer.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 
 
     @PutMapping("/{id}")
