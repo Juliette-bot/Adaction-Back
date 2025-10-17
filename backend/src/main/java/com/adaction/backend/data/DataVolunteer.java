@@ -295,15 +295,32 @@ public class DataVolunteer {
         }
     }
 
-    public List<Map<String, Object>> getVolunteersByCity(int id) {
+    public List<Map<String, Object>> filteringVolunteer(String letter, Integer id) {
         List<Map<String, Object>> listVolunteer = new ArrayList<>();
-        String sql = "SELECT id, firstName, lastName, city_id FROM volunteer WHERE city_id = ?";
+        String sql;
+        if ((letter == null || letter.isEmpty()) && id != null) {
+            sql = "SELECT id, firstName, lastName, city_id FROM volunteer WHERE city_id = ?";
+        } else if ((letter != null && !letter.isEmpty()) && id != null) {
+            sql = "SELECT id, firstName, lastName, city_id FROM volunteer WHERE (firstName LIKE ? OR lastName LIKE ?) AND city_id = ?";
+        } else if ((letter != null && !letter.isEmpty()) && id == null) {
+            sql = "SELECT id, firstName, lastName, city_id FROM volunteer WHERE firstName LIKE ? OR lastName LIKE ?";
+        } else {
+            sql = "SELECT id, firstName, lastName, city_id FROM volunteer";
+        }
 
         try (Connection conn = DriverManager.getConnection(
                 props.getUrl(), props.getUsername(), props.getPassword());
              PreparedStatement pstmt = conn.prepareStatement(sql)) {
 
-            pstmt.setInt(1, id);
+            int paramIndex = 1;
+            if (letter != null && !letter.isEmpty()) {
+                String pattern = "%" + letter + "%";
+                pstmt.setString(paramIndex++, pattern);
+                pstmt.setString(paramIndex++, pattern);
+            }
+            if (id != null) {
+                pstmt.setInt(paramIndex++, id);
+            }
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {

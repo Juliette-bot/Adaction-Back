@@ -141,18 +141,7 @@ public class ControllerVolunteer {
         return response;
     }
 
-    //Get the information of a volunteer with the id of the city
-    @GetMapping("/city/{id}")
-    public List<Map<String, Object>> getVolunteerByCityId(@PathVariable int id) {
-        try {
-            return volunteerData.getVolunteersByCity(id);
-        } catch (Exception e) {
-            e.printStackTrace();
-            return new ArrayList<>();
-        }
-    }
 
-    
     @PutMapping("/update/{id}")
     public ResponseEntity<Map<String, String>> updateVolunteer(
             @PathVariable int id,
@@ -187,8 +176,6 @@ public class ControllerVolunteer {
         }
     }
 
-
-
     @PutMapping("/{id}")
     public ResponseEntity<ModelVolunteer> updateVolunteer(
             @PathVariable int id,
@@ -205,4 +192,15 @@ public class ControllerVolunteer {
         }
     }
 
+    //Get the information of a volunteer with the id of the city
+    @GetMapping("/filter/{letter}/{id}")
+    public List<Map<String,Object>> filterVolunteer(
+            @PathVariable String letter,
+            @PathVariable String id) {
+
+        Integer cityId = "all".equals(id) ? null : Integer.parseInt(id);
+        String search = "all".equals(letter) ? null : letter;
+
+        return volunteerData.filteringVolunteer(search, cityId);
+    }
 }
