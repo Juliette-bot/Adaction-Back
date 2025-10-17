@@ -1,13 +1,18 @@
 package com.adaction.backend.controller;
 
-import com.adaction.backend.data.DataCity;
+import com.adaction.backend.configuration.SecurityConfig;
 import com.adaction.backend.data.DataVolunteer;
 import com.adaction.backend.data.DatabaseProperties;
 import com.adaction.backend.model.ModelVolunteer;
 import org.springframework.beans.factory.annotation.Autowired;
+
+import org.springframework.security.crypto.password.PasswordEncoder;
+
 import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
+
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,6 +22,9 @@ import java.util.Map;
 @CrossOrigin(origins = "http://localhost:5173")
 @RequestMapping("/volunteer")
 public class ControllerVolunteer {
+
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
     @Autowired
     private DataVolunteer volunteerData;
@@ -31,6 +39,10 @@ public class ControllerVolunteer {
     @PostMapping("/add")
     public String addVolunteer(@RequestBody ModelVolunteer volunteer) {
         try {
+            // hash du mot de passe
+            String hashedPassword = passwordEncoder.encode(volunteer.getPass_word());
+            volunteer.setPass_word(hashedPassword);
+
             volunteerData.insertVolunteer(volunteer);
             return "Volunteer added successfully!";
         } catch (Exception e) {
@@ -59,8 +71,8 @@ public class ControllerVolunteer {
     }
 
     //Get the information of a volunteer with the if dor the modification form
-    @PostMapping("/infos")
-    public Map<String, Object> infosVolunteers(@RequestBody int id) {
+    @GetMapping("/infos/{id}")
+    public Map<String, Object> infosVolunteers(@PathVariable int id) {
         try {
             return volunteerData.getInfosVolunteer(id);
         } catch (Exception e) {
@@ -71,7 +83,7 @@ public class ControllerVolunteer {
 
     //Modify the information of a volunteer
     @PutMapping("/modify")
-    public Map<String, String> testRequest(@RequestBody Map<String, Object> payload) {
+    public Map<String, String> modifyVolunteer(@RequestBody Map<String, Object> payload) {
         Map<String, String> response = new HashMap<>();
         try {
             ModelVolunteer volunteer = new ModelVolunteer();
@@ -79,12 +91,23 @@ public class ControllerVolunteer {
             volunteer.setFirstName((String) payload.get("firstName"));
             volunteer.setLastName((String) payload.get("lastName"));
             volunteer.setEmail((String) payload.get("email"));
-            volunteer.setPass_word((String) payload.get("pass_word"));
             volunteer.setCity_id(0);
 
-            // ✅ On récupère le nom de la ville depuis le JSON
             String cityName = (String) payload.get("city_id");
+            String newPassword = (String) payload.get("pass_word");
 
+            // 🔹 Étape 1 : récupérer le mot de passe actuel
+            String existingPassword = volunteerData.getExistingPassword(volunteer.getId());
+
+            // 🔹 Étape 2 : déterminer si on doit hasher le nouveau
+            if (newPassword != null && !newPassword.trim().isEmpty()) {
+                String hashedPassword = passwordEncoder.encode(newPassword);
+                volunteer.setPass_word(hashedPassword);
+            } else {
+                volunteer.setPass_word(existingPassword);
+            }
+
+            // 🔹 Étape 3 : mise à jour
             volunteerData.modifyVolunteerInfo(volunteer, cityName);
 
             response.put("status", "success");
