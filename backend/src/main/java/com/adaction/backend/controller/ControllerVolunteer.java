@@ -15,6 +15,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -138,6 +140,19 @@ public class ControllerVolunteer {
         }
         return response;
     }
+
+    //Get the information of a volunteer with the id of the city
+    @GetMapping("/city/{id}")
+    public List<Map<String, Object>> getVolunteerByCityId(@PathVariable int id) {
+        try {
+            return volunteerData.getVolunteersByCity(id);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ArrayList<>();
+        }
+    }
+
+    
     @PutMapping("/update/{id}")
     public ResponseEntity<Map<String, String>> updateVolunteer(
             @PathVariable int id,
