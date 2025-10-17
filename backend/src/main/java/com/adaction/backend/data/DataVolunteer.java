@@ -295,6 +295,36 @@ public class DataVolunteer {
         }
     }
 
+    public List<Map<String, Object>> getVolunteersByCity(int id) {
+        List<Map<String, Object>> listVolunteer = new ArrayList<>();
+        String sql = "SELECT id, firstName, lastName, city_id FROM volunteer WHERE city_id = ?";
 
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword());
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+
+            pstmt.setInt(1, id);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                while (rs.next()) {
+                    int cityId = rs.getInt("city_id");
+                    String cityName = DataCity.getCityNameById(cityId);
+
+                    Map<String, Object> volunteerMap = new HashMap<>();
+                    volunteerMap.put("id", rs.getInt("id"));
+                    volunteerMap.put("firstName", rs.getString("firstName"));
+                    volunteerMap.put("lastName", rs.getString("lastName"));
+                    volunteerMap.put("cityName", cityName);
+
+                    listVolunteer.add(volunteerMap);
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listVolunteer;
+    }
 
 }
