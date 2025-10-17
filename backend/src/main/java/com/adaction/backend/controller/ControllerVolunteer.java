@@ -2,9 +2,14 @@ package com.adaction.backend.controller;
 
 import com.adaction.backend.configuration.SecurityConfig;
 import com.adaction.backend.data.DataVolunteer;
+import com.adaction.backend.data.DatabaseProperties;
 import com.adaction.backend.model.ModelVolunteer;
 import org.springframework.beans.factory.annotation.Autowired;
+
 import org.springframework.security.crypto.password.PasswordEncoder;
+
+import org.springframework.http.ResponseEntity;
+
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.CrossOrigin;
 
@@ -23,6 +28,12 @@ public class ControllerVolunteer {
 
     @Autowired
     private DataVolunteer volunteerData;
+    private DatabaseProperties props;
+    private final DataVolunteer dataVolunteer;
+
+    public ControllerVolunteer(DataVolunteer dataVolunteer) {
+        this.dataVolunteer = dataVolunteer;
+    }
 
     //Create a new volunteer
     @PostMapping("/add")
@@ -127,4 +138,22 @@ public class ControllerVolunteer {
         }
         return response;
     }
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ModelVolunteer> updateVolunteer(
+            @PathVariable int id,
+            @RequestBody ModelVolunteer volunteer) {
+
+        boolean updated = dataVolunteer.updateVolunteer(id, volunteer);
+
+        if (updated) {
+            System.out.println("Bénévole mis à jour avec succès : " + volunteer.getFirstName());
+            return ResponseEntity.ok(volunteer);
+        } else {
+            System.err.println("Aucun bénévole trouvé avec l'id : " + id);
+            return ResponseEntity.notFound().build();
+        }
+    }
+
 }

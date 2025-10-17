@@ -9,6 +9,7 @@ public class ModelVolunteer {
     private int city_id;
     private String cityName;
     private int points = 0;
+    
 
     public ModelVolunteer(int id,String firstName, String lastName){
         this.id = id;
