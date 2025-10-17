@@ -1,7 +1,5 @@
 package com.adaction.backend.data;
 import com.adaction.backend.model.ModelCity;
-import com.adaction.backend.model.ModelDisplayWaste;
-import com.adaction.backend.model.ModelVolunteer;
 import org.springframework.stereotype.Repository;
 
 import javax.swing.*;
