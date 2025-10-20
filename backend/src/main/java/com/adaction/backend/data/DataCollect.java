@@ -100,11 +100,13 @@ public class DataCollect {
             con.commit();
             System.out.println(" Collecte enregistrée avec succès (ID: " + collectId + ", Volunteer ID: " + collect.getVolunteer_id() + ")");
 
+
         } catch (SQLException e) {
             System.err.println(" Erreur lors de l'enregistrement de la collecte : " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 
     public List<Map<String, Object>> getBestVolunteer(){
         List<Map<String, Object>> listVolunteer = new ArrayList<>();
