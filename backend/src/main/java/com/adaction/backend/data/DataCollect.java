@@ -49,12 +49,13 @@ public class DataCollect {
     // 🔹 2️⃣ — Enregistrement d'une collecte
     public void saveCollect(ModelCollect collect) {
         String sqlFindCityId = "SELECT id FROM city WHERE city = ?";
-        String sqlCollect = "INSERT INTO collect (created_at, city_id) VALUES (?, ?)";
+        String sqlCollect = "INSERT INTO collect (created_at, city_id, volunteer_id) VALUES (?, ?, ?)";
         String sqlWasteCollect = "INSERT INTO waste_collect (collect_id, waste_id, quantity_waste) VALUES (?, ?, ?)";
 
         try (Connection con = getConnection()) {
             con.setAutoCommit(false);
 
+            // 🔸 Récupération de l'ID de la ville
             int cityId;
             try (PreparedStatement stmtCity = con.prepareStatement(sqlFindCityId)) {
                 stmtCity.setString(1, collect.getCity_id());
@@ -67,10 +68,12 @@ public class DataCollect {
                 }
             }
 
+            // 🔸 Insertion de la collecte
             int collectId;
             try (PreparedStatement stmt = con.prepareStatement(sqlCollect, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, collect.getCreated_at());
                 stmt.setInt(2, cityId);
+                stmt.setInt(3, collect.getVolunteer_id()); // ✅ On ajoute ici l'id du volunteer
                 stmt.executeUpdate();
 
                 try (ResultSet keys = stmt.getGeneratedKeys()) {
@@ -82,6 +85,7 @@ public class DataCollect {
                 }
             }
 
+            // 🔸 Insertion des déchets associés
             try (PreparedStatement stmtWaste = con.prepareStatement(sqlWasteCollect)) {
                 for (Map.Entry<Integer, Integer> entry : collect.getWasteTypeAndQuantity().entrySet()) {
                     stmtWaste.setInt(1, collectId);
@@ -93,11 +97,12 @@ public class DataCollect {
             }
 
             con.commit();
-            System.out.println("✅ Collecte enregistrée avec succès (ID: " + collectId + ")");
+            System.out.println("✅ Collecte enregistrée avec succès (ID: " + collectId + ", Volunteer ID: " + collect.getVolunteer_id() + ")");
 
         } catch (SQLException e) {
             System.err.println("❌ Erreur lors de l'enregistrement de la collecte : " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 }

@@ -11,10 +11,11 @@ public class ModelCollect {
     private int collect_id;
     private int quantity_waste;
     private int waste_id;
+    private int volunteer_id;
 
     public ModelCollect() {}
 
-    public ModelCollect(int id, String created_at, String city_id, Map<Integer,Integer> wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {
+    public ModelCollect(int id, String created_at, String city_id, Map<Integer,Integer> wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste, int volunteer_id) {
         this.id = id;
         this.created_at = created_at;
         this.city_id= city_id;
@@ -22,6 +23,7 @@ public class ModelCollect {
         this.collect_id = collect_id;
         this.quantity_waste = quantity_waste;
         this.waste_id = waste_id;
+        this.volunteer_id = volunteer_id;
 
 
     }
@@ -58,6 +60,8 @@ public class ModelCollect {
         return quantity_waste;
     }
 
+    public int getVolunteer_id() { return volunteer_id; }
+
     public void setId(int id){
         this.id = id;
     }
@@ -85,4 +89,6 @@ public class ModelCollect {
     public void setQuantity_waste(int quantity_waste) {
         this.quantity_waste = quantity_waste;
     }
+
+    public void setVolunteer_id(int volunteer_id) { this.volunteer_id = volunteer_id;};
 }
