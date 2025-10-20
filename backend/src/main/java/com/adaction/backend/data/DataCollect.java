@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,12 +50,13 @@ public class DataCollect {
     // 🔹 2️⃣ — Enregistrement d'une collecte
     public void saveCollect(ModelCollect collect) {
         String sqlFindCityId = "SELECT id FROM city WHERE city = ?";
-        String sqlCollect = "INSERT INTO collect (created_at, city_id) VALUES (?, ?)";
+        String sqlCollect = "INSERT INTO collect (created_at, city_id, volunteer_id) VALUES (?, ?, ?)";
         String sqlWasteCollect = "INSERT INTO waste_collect (collect_id, waste_id, quantity_waste) VALUES (?, ?, ?)";
 
         try (Connection con = getConnection()) {
             con.setAutoCommit(false);
 
+            // 🔸 Récupération de l'ID de la ville
             int cityId;
             try (PreparedStatement stmtCity = con.prepareStatement(sqlFindCityId)) {
                 stmtCity.setString(1, collect.getCity_id());
@@ -67,10 +69,12 @@ public class DataCollect {
                 }
             }
 
+            // 🔸 Insertion de la collecte
             int collectId;
             try (PreparedStatement stmt = con.prepareStatement(sqlCollect, Statement.RETURN_GENERATED_KEYS)) {
                 stmt.setString(1, collect.getCreated_at());
                 stmt.setInt(2, cityId);
+                stmt.setInt(3, collect.getVolunteer_id()); // ✅ On ajoute ici l'id du volunteer
                 stmt.executeUpdate();
 
                 try (ResultSet keys = stmt.getGeneratedKeys()) {
@@ -82,6 +86,7 @@ public class DataCollect {
                 }
             }
 
+            // 🔸 Insertion des déchets associés
             try (PreparedStatement stmtWaste = con.prepareStatement(sqlWasteCollect)) {
                 for (Map.Entry<Integer, Integer> entry : collect.getWasteTypeAndQuantity().entrySet()) {
                     stmtWaste.setInt(1, collectId);
@@ -93,11 +98,44 @@ public class DataCollect {
             }
 
             con.commit();
-            System.out.println("✅ Collecte enregistrée avec succès (ID: " + collectId + ")");
+            System.out.println(" Collecte enregistrée avec succès (ID: " + collectId + ", Volunteer ID: " + collect.getVolunteer_id() + ")");
 
         } catch (SQLException e) {
-            System.err.println("❌ Erreur lors de l'enregistrement de la collecte : " + e.getMessage());
+            System.err.println(" Erreur lors de l'enregistrement de la collecte : " + e.getMessage());
             e.printStackTrace();
         }
     }
+
+    public List<Map<String, Object>> getBestVolunteer(){
+        List<Map<String, Object>> listVolunteer = new ArrayList<>();
+        String sql = "SELECT volunteer.firstName, " +
+                "volunteer.lastName, " +
+                "COUNT(collect.id) AS collect_number " +
+                "FROM volunteer " +
+                "JOIN collect ON volunteer.id = collect.volunteer_id " +
+                "GROUP BY volunteer.id, volunteer.firstName, volunteer.lastName " +
+                "ORDER BY collect_number DESC " +
+                "LIMIT 5;";
+
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword());
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> volunteerMap = new HashMap<>();
+                volunteerMap.put("firstName", rs.getString("firstName"));
+                volunteerMap.put("lastName", rs.getString("lastName"));
+                volunteerMap.put("collect_number", rs.getInt("collect_number"));
+                listVolunteer.add(volunteerMap);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listVolunteer;
+    }
 }
+
