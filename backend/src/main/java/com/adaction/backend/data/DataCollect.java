@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -97,12 +98,46 @@ public class DataCollect {
             }
 
             con.commit();
-            System.out.println("✅ Collecte enregistrée avec succès (ID: " + collectId + ", Volunteer ID: " + collect.getVolunteer_id() + ")");
+            System.out.println(" Collecte enregistrée avec succès (ID: " + collectId + ", Volunteer ID: " + collect.getVolunteer_id() + ")");
+
 
         } catch (SQLException e) {
-            System.err.println("❌ Erreur lors de l'enregistrement de la collecte : " + e.getMessage());
+            System.err.println(" Erreur lors de l'enregistrement de la collecte : " + e.getMessage());
             e.printStackTrace();
         }
     }
 
+
+    public List<Map<String, Object>> getBestVolunteer(){
+        List<Map<String, Object>> listVolunteer = new ArrayList<>();
+        String sql = "SELECT volunteer.firstName, " +
+                "volunteer.lastName, " +
+                "COUNT(collect.id) AS collect_number " +
+                "FROM volunteer " +
+                "JOIN collect ON volunteer.id = collect.volunteer_id " +
+                "GROUP BY volunteer.id, volunteer.firstName, volunteer.lastName " +
+                "ORDER BY collect_number DESC " +
+                "LIMIT 5;";
+
+        try (Connection conn = DriverManager.getConnection(
+                props.getUrl(), props.getUsername(), props.getPassword());
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                Map<String, Object> volunteerMap = new HashMap<>();
+                volunteerMap.put("firstName", rs.getString("firstName"));
+                volunteerMap.put("lastName", rs.getString("lastName"));
+                volunteerMap.put("collect_number", rs.getInt("collect_number"));
+                listVolunteer.add(volunteerMap);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listVolunteer;
+    }
 }
+

@@ -92,3 +92,4 @@ public class ModelCollect {
 
     public void setVolunteer_id(int volunteer_id) { this.volunteer_id = volunteer_id;};
 }
+

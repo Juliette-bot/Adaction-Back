@@ -38,4 +38,17 @@ public class ControllerCollect {
             return ResponseEntity.status(500).body("Erreur : " + e.getMessage());
         }
     }
+
+    @GetMapping("/leaderboard")
+    public List<Map<String, Object>> gettingTopVolunteer(){
+        try {
+            return repository.getBestVolunteer();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Map<String, Object> errorMap = new HashMap<>();
+            errorMap.put("error", "Problem fetching volunteer info");
+            return List.of(errorMap);
+        }
+    }
+
 }

@@ -165,7 +165,7 @@ public class DataVolunteer {
         try (Connection conn = DriverManager.getConnection(
                 props.getUrl(), props.getUsername(), props.getPassword())) {
 
-            // 🕵️‍♀️ 1. Récupérer les infos actuelles
+            // 1. Récupérer les infos actuelles
             String currentEmail = null;
             String currentPassword = null;
             try (PreparedStatement selectStmt = conn.prepareStatement(selectSql)) {
@@ -177,13 +177,13 @@ public class DataVolunteer {
                 }
             }
 
-            // 🧩 2. Si les champs du front sont vides, garder ceux de la BDD
+            // 2. Si les champs du front sont vides, garder ceux de la BDD
             String emailToUpdate = (volunteer.getEmail() != null && !volunteer.getEmail().isEmpty())
                     ? volunteer.getEmail() : currentEmail;
             String passwordToUpdate = (volunteer.getPass_word() != null && !volunteer.getPass_word().isEmpty())
                     ? volunteer.getPass_word() : currentPassword;
 
-            // 💾 3. Update
+            // 3. Update
             try (PreparedStatement updateStmt = conn.prepareStatement(updateSql)) {
                 updateStmt.setString(1, volunteer.getFirstName());
                 updateStmt.setString(2, volunteer.getLastName());
