@@ -22,12 +22,27 @@ public class DataConnexion {
     }
 
     public Integer verifyLogin(ModelConnexion login) {
-        String sql = "SELECT id, email, pass_word FROM volunteer WHERE email = ?";
+        String sqlAdmin = "SELECT id, email, pass_word FROM admin WHERE email = ?";
+        String sqlVolunteer = "SELECT id, email, pass_word FROM volunteer WHERE email = ?";
 
         try (Connection conn = DriverManager.getConnection(
-                props.getUrl(), props.getUsername(), props.getPassword());
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+                props.getUrl(), props.getUsername(), props.getPassword())) {
 
+            Integer adminId = checkCredentials(conn, sqlAdmin, login);
+            if (adminId != null) return 0;
+
+            Integer volunteerId = checkCredentials(conn, sqlVolunteer, login);
+            if (volunteerId != null) return volunteerId;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    private Integer checkCredentials(Connection conn, String sql, ModelConnexion login) throws SQLException {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, login.getEmail());
             ResultSet rs = stmt.executeQuery();
 
@@ -39,11 +54,7 @@ public class DataConnexion {
                     return id;
                 }
             }
-
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-
         return null;
     }
 }
