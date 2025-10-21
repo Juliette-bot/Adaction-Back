@@ -61,14 +61,23 @@ public class DataWaste {
     public List<ModelWaste> getWasteCollectMonth(int volunteerId, int month, int year) {
         List<ModelWaste> listWaste = new ArrayList<>();
 
-        String sql = "SELECT waste_collect.waste_id, waste.name, waste.icone, SUM(waste_collect.quantity_waste) AS total_quantity " +
-                "FROM waste_collect " +
-                "JOIN collect ON waste_collect.collect_id = collect.id " +
-                "JOIN waste ON waste_collect.waste_id = waste.id " +
-                "WHERE collect.volunteer_id = ? " +
-                "AND YEAR(collect.created_at) = ? " +
-                "AND MONTH(collect.created_at) = ? " +
-                "GROUP BY waste_collect.waste_id, waste.name, waste.icone";
+        String sql = "SELECT " +
+                "w.id AS waste_id, " +
+                "w.name, " +
+                "w.icone, " +
+                "COALESCE(SUM(wc.quantity_waste), 0) AS total_quantity " +
+                "FROM waste w " +
+                "LEFT JOIN ( " +
+                "    SELECT wc.waste_id, wc.quantity_waste " +
+                "    FROM waste_collect wc " +
+                "    JOIN collect c ON wc.collect_id = c.id " +
+                "    WHERE c.volunteer_id = ? " +
+                "      AND YEAR(c.created_at) = ? " +
+                "      AND MONTH(c.created_at) = ? " +
+                ") AS wc ON wc.waste_id = w.id " +
+                "GROUP BY w.id, w.name, w.icone " +
+                "ORDER BY w.id;";
+
 
         try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(sql)) {
