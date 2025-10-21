@@ -1,6 +1,7 @@
 package com.adaction.backend.data;
 
 import com.adaction.backend.model.ModelCollect;
+import com.adaction.backend.model.ModelWaste;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
@@ -107,7 +108,7 @@ public class DataCollect {
         }
     }
 
-
+    // Get the top 5 Volunteers collecting waste
     public List<Map<String, Object>> getBestVolunteer(){
         List<Map<String, Object>> listVolunteer = new ArrayList<>();
         String sql = "SELECT volunteer.firstName, " +
@@ -139,5 +140,7 @@ public class DataCollect {
 
         return listVolunteer;
     }
+
+
 }
 

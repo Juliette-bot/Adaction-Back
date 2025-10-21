@@ -12,6 +12,8 @@ public class ModelCollect {
     private int quantity_waste;
     private int waste_id;
     private int volunteer_id;
+    private String name;
+    private String icone;
 
     public ModelCollect() {}
 
@@ -24,8 +26,13 @@ public class ModelCollect {
         this.quantity_waste = quantity_waste;
         this.waste_id = waste_id;
         this.volunteer_id = volunteer_id;
+    }
 
-
+    public ModelCollect(int waste_id, int quantity_waste, String name, String icone) {
+        this.waste_id = waste_id;
+        this.quantity_waste = quantity_waste;
+        this.name = name;
+        this.icone = icone;
     }
 
     public ModelCollect(String created_at, String city_id, String wasteTypeAndQuantity, int collect_id, int waste_id, int quantity_waste) {

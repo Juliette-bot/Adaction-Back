@@ -11,6 +11,8 @@ public class ModelWaste {
     private int point;
     private String icone;
     private int quantity_waste;
+    private int waste_id;
+    private int total_quantity;
 
 
     public ModelWaste(int id, String type, String name, int point, String icone) {
@@ -22,6 +24,13 @@ public class ModelWaste {
         this.quantity_waste = 0;
     }
 
+    public ModelWaste(int waste_id, String name, String icone, int total_quantity) {
+        this.waste_id = waste_id;
+        this.name = name;
+        this.icone = icone;
+        this.total_quantity = total_quantity;
+    }
+
     // Getters et Setters
     public int getId() {
         return id;
@@ -29,6 +38,14 @@ public class ModelWaste {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public int getWaste_id() {
+        return waste_id;
+    }
+
+    public int getTotal_quantity() {
+        return total_quantity;
     }
 
     public String getType() {

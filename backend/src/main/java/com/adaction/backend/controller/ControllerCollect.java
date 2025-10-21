@@ -2,6 +2,7 @@ package com.adaction.backend.controller;
 
 import com.adaction.backend.data.DataCollect;
 import com.adaction.backend.model.ModelCollect;
+import com.adaction.backend.model.ModelWaste;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
