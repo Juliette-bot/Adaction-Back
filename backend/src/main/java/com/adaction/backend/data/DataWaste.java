@@ -1,5 +1,6 @@
 package com.adaction.backend.data;
 
+import com.adaction.backend.model.ModelCollect;
 import com.adaction.backend.model.ModelWaste;
 import org.springframework.stereotype.Repository;
 
@@ -34,6 +35,7 @@ public class DataWaste {
         List<ModelWaste> wastes = new ArrayList<>();
         String sql = "SELECT * FROM waste";
 
+
         try (Connection con = getConnection();
              PreparedStatement stmt = con.prepareStatement(sql);
              ResultSet rs = stmt.executeQuery()) {
@@ -54,5 +56,42 @@ public class DataWaste {
         }
 
         return wastes;
+    }
+
+    public List<ModelWaste> getWasteCollectMonth(int volunteerId, int month, int year) {
+        List<ModelWaste> listWaste = new ArrayList<>();
+
+        String sql = "SELECT waste_collect.waste_id, waste.name, waste.icone, SUM(waste_collect.quantity_waste) AS total_quantity " +
+                "FROM waste_collect " +
+                "JOIN collect ON waste_collect.collect_id = collect.id " +
+                "JOIN waste ON waste_collect.waste_id = waste.id " +
+                "WHERE collect.volunteer_id = ? " +
+                "AND YEAR(collect.created_at) = ? " +
+                "AND MONTH(collect.created_at) = ? " +
+                "GROUP BY waste_collect.waste_id, waste.name, waste.icone";
+
+        try (Connection con = getConnection();
+             PreparedStatement stmt = con.prepareStatement(sql)) {
+
+            stmt.setInt(1, volunteerId);
+            stmt.setInt(2, year);
+            stmt.setInt(3, month);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    int wasteId = rs.getInt("waste_id");
+                    String name = rs.getString("name");
+                    String icone = rs.getString("icone");
+                    int totalQuantity = rs.getInt("total_quantity");
+
+                    listWaste.add(new ModelWaste(wasteId, name, icone, totalQuantity));
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return listWaste;
     }
 }
