@@ -23,7 +23,7 @@ public class DataConnexion {
 
     public Integer verifyLogin(ModelConnexion login) {
         String sqlAdmin = "SELECT id, email, pass_word FROM admin WHERE email = ?";
-        String sqlVolunteer = "SELECT id, email, pass_word FROM volunteer WHERE email = ?";
+        String sqlVolunteer = "SELECT id, email, pass_word FROM volunteer WHERE email = ? AND active = 1";
 
         try (Connection conn = DriverManager.getConnection(
                 props.getUrl(), props.getUsername(), props.getPassword())) {

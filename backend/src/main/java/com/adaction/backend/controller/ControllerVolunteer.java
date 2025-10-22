@@ -113,11 +113,11 @@ public class ControllerVolunteer {
             volunteerData.modifyVolunteerInfo(volunteer, cityName);
 
             response.put("status", "success");
-            response.put("message", "Volunteer modified successfully!");
+            response.put("message", "Bénévole modifié avec succès !!");
         } catch (Exception e) {
             e.printStackTrace();
             response.put("status", "error");
-            response.put("message", "Error while modifying volunteer.");
+            response.put("message", "Erreur pendant la modification du bénévole.");
         }
         return response;
     }
