@@ -73,7 +73,7 @@ public class DataVolunteer {
     public List<Map<String, Object>> getVolunteerWithCity() {
         List<Map<String, Object>> listVolunteer = new ArrayList<>();
 
-        String sql = "SELECT id, firstName, lastName, city_id FROM volunteer";
+        String sql = "SELECT id, firstName, lastName, city_id FROM volunteer WHERE active = 1";
 
         try (Connection conn = DriverManager.getConnection(
                 props.getUrl(), props.getUsername(), props.getPassword());
@@ -273,7 +273,7 @@ public class DataVolunteer {
     }
     //Delete a volunteer
     public String deleteVolunteer (ModelVolunteer volunteerToDelete) {
-        String sql = "DELETE FROM volunteer WHERE id = ?";
+        String sql = "UPDATE volunteer SET active = FALSE WHERE id = ?;";
 
         try (Connection conn = DriverManager.getConnection(
                 props.getUrl(), props.getUsername(), props.getPassword());

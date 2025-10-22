@@ -109,13 +109,16 @@ public class DataCollect {
     }
 
     // Get the top 5 Volunteers collecting waste
-    public List<Map<String, Object>> getBestVolunteer(){
+    public List<Map<String, Object>> getBestVolunteer() {
         List<Map<String, Object>> listVolunteer = new ArrayList<>();
-        String sql = "SELECT volunteer.firstName, " +
+
+        String sql = "SELECT " +
+                "volunteer.firstName, " +
                 "volunteer.lastName, " +
                 "COUNT(collect.id) AS collect_number " +
                 "FROM volunteer " +
                 "JOIN collect ON volunteer.id = collect.volunteer_id " +
+                "WHERE volunteer.active = 1 " +
                 "GROUP BY volunteer.id, volunteer.firstName, volunteer.lastName " +
                 "ORDER BY collect_number DESC " +
                 "LIMIT 5;";
