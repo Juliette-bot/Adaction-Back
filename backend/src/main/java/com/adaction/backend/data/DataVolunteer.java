@@ -211,7 +211,7 @@ public class DataVolunteer {
                 INSERT INTO city (city)
                 SELECT ?
                 WHERE NOT EXISTS (SELECT 1 FROM city WHERE city = ?)
-            """;
+            """; //permet de creer la ville si elle ewxiste pas dans la table
 
         String updateVolunteerSql = """
                 UPDATE volunteer

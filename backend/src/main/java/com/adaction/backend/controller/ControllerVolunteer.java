@@ -56,6 +56,7 @@ public class ControllerVolunteer {
     //Display the list of volunteer on the admin page
     @GetMapping("/display-with-city")
     public List<Map<String, Object>> displayVolunteersWithCity() {
+
         return volunteerData.getVolunteerWithCity();
     }
 
@@ -98,10 +99,10 @@ public class ControllerVolunteer {
             String cityName = (String) payload.get("city_id");
             String newPassword = (String) payload.get("pass_word");
 
-            // 🔹 Étape 1 : récupérer le mot de passe actuel
+            //récupérer le mot de passe actuel
             String existingPassword = volunteerData.getExistingPassword(volunteer.getId());
 
-            // 🔹 Étape 2 : déterminer si on doit hasher le nouveau
+            //déterminer si on doit hasher le nouveau
             if (newPassword != null && !newPassword.trim().isEmpty()) {
                 String hashedPassword = passwordEncoder.encode(newPassword);
                 volunteer.setPass_word(hashedPassword);
@@ -109,7 +110,7 @@ public class ControllerVolunteer {
                 volunteer.setPass_word(existingPassword);
             }
 
-            // 🔹 Étape 3 : mise à jour
+            //mise à jour
             volunteerData.modifyVolunteerInfo(volunteer, cityName);
 
             response.put("status", "success");
@@ -144,10 +145,10 @@ public class ControllerVolunteer {
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Map<String, String>> updateVolunteer(
-            @PathVariable int id,
-            @RequestBody Map<String, Object> payload) {
+            @PathVariable int id, // permet de recuper la cariable qui ets dans le chemin ici l'id
+            @RequestBody Map<String, Object> payload) { // c'est le body envoyé par le front donc le json formdata
 
-        Map<String, String> response = new HashMap<>();
+        Map<String, String> response = new HashMap<>(); // creation d'un map d'un ojt sour forme string string
 
         try {
             // Création d'un objet ModelVolunteer à partir du JSON reçu
@@ -155,12 +156,23 @@ public class ControllerVolunteer {
             volunteer.setId(id); // on prend l'id depuis l'URL
             volunteer.setFirstName((String) payload.get("firstName"));
             volunteer.setLastName((String) payload.get("lastName"));
+            volunteer.setEmail((String) payload.get("email"));
             volunteer.setCity_id(0); // valeur par défaut ou à adapter
 
-            // Récupération du nom de la ville envoyé par le front
-            String cityName = (String) payload.get("cityName");
 
-            // Appel de ta méthode métier
+            String cityName = (String) payload.get("city_id");
+            String newPassword = (String) payload.get("pass_word");
+            String existingPassword = volunteerData.getExistingPassword(volunteer.getId());
+
+
+            if (newPassword != null && !newPassword.trim().isEmpty()) {
+                String hashedPassword = passwordEncoder.encode(newPassword);
+                volunteer.setPass_word(hashedPassword);
+            } else {
+                volunteer.setPass_word(existingPassword);
+            }
+
+            // Appel de ma methode et je lui passe ne params volunteer et cityname
             volunteerData.modifyVolunteerInfo(volunteer, cityName);
 
             // Réponse OK
